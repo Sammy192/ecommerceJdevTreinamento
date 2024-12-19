@@ -1,13 +1,14 @@
 services:
   # ====================================================================================================================
-  # POSTGRES SERVER
-  # ====================================================================================================================
+  # POSTGRES DATABASE
+  # ====================================================================================================================      
   pg-docker:
     image: postgres:14-alpine
     container_name: dev-postgresql
     environment:
-      POSTGRES_DB: mydatabase
+      POSTGRES_DB: db_ecommerce
       POSTGRES_PASSWORD: 1234567
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - 5433:5432
     volumes:
