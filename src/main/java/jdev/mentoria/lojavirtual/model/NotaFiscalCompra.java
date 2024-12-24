@@ -33,7 +33,7 @@ public class NotaFiscalCompra {
     @Temporal(TemporalType.DATE)
     private Date dataCompra;
 
-    @ManyToOne
+    @ManyToOne(targetEntity = Pessoa.class)
     @JoinColumn(name = "pessoa_id", nullable = false , foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_notaFiscalCompra_pessoa"))
     private Pessoa pessoa;
 
