@@ -22,10 +22,14 @@ public class CupomDesconto {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_cupom_desconto")
     private Long id;
-
+    @Column(nullable = false)
     private String codDescricao;
+
     private BigDecimal valorRealDesconto;
+
     private BigDecimal valorPercentDesconto;
+
+    @Column(nullable = false)
     @Temporal(TemporalType.DATE)
     private Date dataValidadeCupom;
 

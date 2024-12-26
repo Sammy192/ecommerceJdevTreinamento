@@ -22,8 +22,10 @@ public class AvaliacaoProduto {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_avaliacao_produto")
     private Long id;
 
+    @Column(nullable = false)
     private Integer nota;
 
+    @Column(nullable = false)
     private String comentario;
 
     @ManyToOne(targetEntity = Pessoa.class)
