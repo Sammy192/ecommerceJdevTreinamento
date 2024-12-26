@@ -32,6 +32,10 @@ public class AvaliacaoProduto {
     @JoinColumn(name = "pessoa_id", nullable = false , foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_avaliacaoProduto_pessoa"))
     private Pessoa pessoa;
 
+    @ManyToOne
+    @JoinColumn(name = "produto_id", nullable = false , foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_avaliacaoProduto_produto"))
+    private Produto produto;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
