@@ -2,11 +2,11 @@ package jdev.mentoria.lojavirtual.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import jdev.mentoria.lojavirtual.config.ApplicationContextLoad;
-import jdev.mentoria.lojavirtual.model.Usuario;
-import jdev.mentoria.lojavirtual.repositories.UsuarioRepository;
+import jdev.mentoria.lojavirtual.services.UsuarioService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +19,9 @@ import java.util.Objects;
 @Service
 @Component
 public class JWTTokenAutenticacaoService {
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     /*Token de validade de 11 dias*/
     private static final long EXPIRATION_TIME = 959990000;
@@ -66,14 +69,12 @@ public class JWTTokenAutenticacaoService {
                     .getBody().getSubject();
 
             if (Objects.nonNull(user)) {
-                Usuario usuario = ApplicationContextLoad.
-                        getApplicationContext().
-                        getBean(UsuarioRepository.class).findUserByLogin(user);
+                UserDetails usuario = usuarioService.loadUserByUsername(user);
 
                 if (Objects.nonNull(usuario)) {
                     return new UsernamePasswordAuthenticationToken(
-                            usuario.getLogin(),
-                            usuario.getSenha(),
+                            usuario.getUsername(),
+                            usuario.getPassword(),
                             usuario.getAuthorities());
                 }
             }

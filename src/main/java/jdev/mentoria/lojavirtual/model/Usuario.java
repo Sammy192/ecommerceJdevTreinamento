@@ -1,9 +1,6 @@
 package jdev.mentoria.lojavirtual.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -40,6 +37,7 @@ public class Usuario implements UserDetails {
     @JoinColumn(name = "pessoa_id", nullable = false , foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_usuario_pessoa"))
     private Pessoa pessoa;
 
+    @Setter(value = AccessLevel.NONE)
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "usuario_acesso",
             uniqueConstraints = @UniqueConstraint (columnNames = {"usuario_id", "acesso_id"},
@@ -83,5 +81,9 @@ public class Usuario implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void addAcesso(Acesso acesso) {
+        acessos.add(acesso);
     }
 }

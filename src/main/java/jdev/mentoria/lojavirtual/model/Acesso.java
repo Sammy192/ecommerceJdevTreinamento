@@ -13,6 +13,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @SequenceGenerator(name ="seq_acesso", sequenceName = "seq_acesso", allocationSize = 1, initialValue = 1)
+@AllArgsConstructor
 public class Acesso implements GrantedAuthority {
 
     private static final long serialVersionUID = 1L;

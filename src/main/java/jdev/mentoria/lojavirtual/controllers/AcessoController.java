@@ -5,6 +5,7 @@ import jdev.mentoria.lojavirtual.services.AcessoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -27,6 +28,7 @@ public class AcessoController {
         return ResponseEntity.created(uri).body(dto);
     }
 
+    //@Secured({"ROLE_GERENTE"})
     @GetMapping(value = "/{id}")
     public ResponseEntity<AcessoDTO> findById(@PathVariable Long id) {
         AcessoDTO list = acessoService.findById(id);
