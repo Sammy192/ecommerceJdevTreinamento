@@ -2,11 +2,18 @@ package jdev.mentoria.lojavirtual.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jdev.mentoria.lojavirtual.config.ApplicationContextLoad;
+import jdev.mentoria.lojavirtual.model.Usuario;
+import jdev.mentoria.lojavirtual.repositories.UsuarioRepository;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
+import java.util.Objects;
 
 /*Criar a autenticação e retonar também a autenticação JWT*/
 @Service
@@ -25,9 +32,7 @@ public class JWTTokenAutenticacaoService {
 
     /*Gera o token e retorna a resposta para o cliente o com JWT*/
     public void addAuthentication(HttpServletResponse response, String username) throws Exception {
-
         /*Monta o Token*/
-
         String JWT = Jwts.builder()/*Chama o gerador de token*/
                 .setSubject(username) /*Adiciona o user*/
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
@@ -39,8 +44,59 @@ public class JWTTokenAutenticacaoService {
         /*Retorna para a tela e para o cliente, outra API, navegador, aplicativo, javascript, outra chamadajava*/
         response.addHeader(HEADER_STRING, token);
 
+        liberacaoCors(response);
+
         /*Usado para ver no Postman para teste*/
         response.getWriter().write("{\"Authorization\": \"" + token + "\"}");
-
     }
+
+    /*Retorna o usuário validado com token ou caso nao seja valido retona null*/
+    public Authentication getAuthetication(HttpServletRequest request, HttpServletResponse response) {
+
+        String token = request.getHeader(HEADER_STRING);
+
+        if (token != null) {
+
+            String tokenLimpo = token.replace(TOKEN_PREFIX, "").trim();
+
+            /*Faz a validacao do token do usuário na requisicao e obtem o USER*/
+            String user = Jwts.parser().
+                    setSigningKey(SECRET)
+                    .parseClaimsJws(tokenLimpo)
+                    .getBody().getSubject();
+
+            if (Objects.nonNull(user)) {
+                Usuario usuario = ApplicationContextLoad.
+                        getApplicationContext().
+                        getBean(UsuarioRepository.class).findUserByLogin(user);
+
+                if (Objects.nonNull(usuario)) {
+                    return new UsernamePasswordAuthenticationToken(
+                            usuario.getLogin(),
+                            usuario.getSenha(),
+                            usuario.getAuthorities());
+                }
+            }
+        }
+
+        liberacaoCors(response);
+        return null;
+    }
+
+
+    private void liberacaoCors(HttpServletResponse response) {
+        if (response.getHeader("Access-Control-Allow-Origin") == null) {
+            response.addHeader("Access-Control-Allow-Origin", "*");
+        }
+        if (response.getHeader("Access-Control-Allow-Headers") == null) {
+            response.addHeader("Access-Control-Allow-Headers", "*");
+        }
+        if (response.getHeader("Access-Control-Request-Headers") == null) {
+            response.addHeader("Access-Control-Request-Headers", "*");
+        }
+        if (response.getHeader("Access-Control-Allow-Methods") == null) {
+            response.addHeader("Access-Control-Allow-Methods", "*");
+        }
+    }
+
 }
