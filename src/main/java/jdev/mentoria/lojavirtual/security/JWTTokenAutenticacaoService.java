@@ -1,5 +1,6 @@
 package jdev.mentoria.lojavirtual.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
@@ -57,32 +58,43 @@ public class JWTTokenAutenticacaoService {
     }
 
     /*Retorna o usuário validado com token ou caso nao seja valido retona null*/
-    public Authentication getAuthetication(HttpServletRequest request, HttpServletResponse response) {
+    public Authentication getAuthetication(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String token = request.getHeader(HEADER_STRING);
-        if (token != null) {
+        try {
+            if (token != null) {
 
-            String tokenLimpo = token.replace(TOKEN_PREFIX, "").trim();
+                String tokenLimpo = token.replace(TOKEN_PREFIX, "").trim();
 
-            /*Faz a validacao do token do usuário na requisicao e obtem o USER*/
-            String user = Jwts.parser().
-                    setSigningKey(SECRET)
-                    .parseClaimsJws(tokenLimpo)
-                    .getBody().getSubject();
+                /*Faz a validacao do token do usuário na requisicao e obtem o USER*/
+                String user = Jwts.parser().
+                        setSigningKey(SECRET)
+                        .parseClaimsJws(tokenLimpo)
+                        .getBody().getSubject();
 
-            if (Objects.nonNull(user)) {
-                UserDetails usuario = ApplicationContextLoad
-                                        .getApplicationContext()
-                                        .getBean(UsuarioService.class)
-                                        .loadUserByUsername(user);
+                if (Objects.nonNull(user)) {
+                    UserDetails usuario = ApplicationContextLoad
+                                            .getApplicationContext()
+                                            .getBean(UsuarioService.class)
+                                            .loadUserByUsername(user);
 
-                if (Objects.nonNull(usuario)) {
-                    return new UsernamePasswordAuthenticationToken(
-                            usuario.getUsername(),
-                            usuario.getPassword(),
-                            usuario.getAuthorities());
+                    if (Objects.nonNull(usuario)) {
+                        return new UsernamePasswordAuthenticationToken(
+                                usuario.getUsername(),
+                                usuario.getPassword(),
+                                usuario.getAuthorities());
+                    }
                 }
             }
+
+        } catch (SignatureException e) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("Token inválido");
+        } catch (ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token expirado");
+        } finally {
+            liberacaoCors(response);
         }
 
         return null;
