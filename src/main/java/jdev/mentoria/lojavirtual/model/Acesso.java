@@ -2,6 +2,7 @@ package jdev.mentoria.lojavirtual.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -14,6 +15,7 @@ import java.util.Objects;
 @Setter
 @SequenceGenerator(name ="seq_acesso", sequenceName = "seq_acesso", allocationSize = 1, initialValue = 1)
 @AllArgsConstructor
+@NoArgsConstructor
 public class Acesso implements GrantedAuthority {
 
     private static final long serialVersionUID = 1L;

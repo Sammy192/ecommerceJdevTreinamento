@@ -2,6 +2,8 @@ package jdev.mentoria.lojavirtual.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import jdev.mentoria.lojavirtual.config.ApplicationContextLoad;
 import jdev.mentoria.lojavirtual.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
 
@@ -57,7 +60,6 @@ public class JWTTokenAutenticacaoService {
     public Authentication getAuthetication(HttpServletRequest request, HttpServletResponse response) {
 
         String token = request.getHeader(HEADER_STRING);
-
         if (token != null) {
 
             String tokenLimpo = token.replace(TOKEN_PREFIX, "").trim();
@@ -69,7 +71,10 @@ public class JWTTokenAutenticacaoService {
                     .getBody().getSubject();
 
             if (Objects.nonNull(user)) {
-                UserDetails usuario = usuarioService.loadUserByUsername(user);
+                UserDetails usuario = ApplicationContextLoad
+                                        .getApplicationContext()
+                                        .getBean(UsuarioService.class)
+                                        .loadUserByUsername(user);
 
                 if (Objects.nonNull(usuario)) {
                     return new UsernamePasswordAuthenticationToken(
@@ -80,7 +85,6 @@ public class JWTTokenAutenticacaoService {
             }
         }
 
-        liberacaoCors(response);
         return null;
     }
 
